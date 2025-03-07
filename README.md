@@ -2,6 +2,20 @@
 
 "เดี่ยวมาเขียนอีกทีนะ ยังไม่ Final"
 
+## Table of Contents
+- [FRA532 EXAM1 : AMR in warehourse](#fra532-exam1--amr-in-warehourse)
+  - [Table of Contents](#table-of-contents)
+  - [Description](#description)
+  - [Systeno req](#systeno-req)
+  - [Installation](#installation)
+    - [1.Clone ws](#1clone-ws)
+    - [2.Clone MIR robot](#2clone-mir-robot)
+    - [3.Clone AWS Warehourse](#3clone-aws-warehourse)
+    - [4.Add cam to MIR](#4add-cam-to-mir)
+  - [Usage](#usage)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 ## Description
 A brief description of what this project does and who it's for.
 
