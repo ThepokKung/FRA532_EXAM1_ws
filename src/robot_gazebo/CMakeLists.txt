@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(robot_nav2)
+project(robot_gazebo)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -48,6 +48,7 @@ install(TARGETS
 ################ INSTALL LAUNCH, ETC #################
 install(DIRECTORY
   # add directories here
+  launch
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()
