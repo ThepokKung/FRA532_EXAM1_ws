@@ -3,5 +3,6 @@ build
 install
 src/.vscode
 src/limo_robot
+Drop_file
 
 .vscode
