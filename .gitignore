@@ -2,7 +2,10 @@ log
 build
 install
 src/.vscode
+#Other Pkg using
 src/mir_robot/
+src/aws-robomaker-small-warehouse-world/
+src/ira_laser_tools/
+src/twist_stamper/
 Drop_file
-
 .vscode
