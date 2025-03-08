@@ -11,13 +11,20 @@ def generate_launch_description():
     warehouse_pkg_dir = get_package_share_directory('aws_robomaker_small_warehouse_world')
     warehouse_launch_path = os.path.join(warehouse_pkg_dir, 'launch')
 
+    robot_gazebo_pkg_dir = get_package_share_directory('robot_gazebo')
+    robot_gazebo_launch_path = os.path.join(robot_gazebo_pkg_dir, 'launch')
+
     # Add Here
     mir_description_dir = get_package_share_directory('mir_description')
     mir_gazebo_dir = get_package_share_directory('mir_gazebo')
 
 
+    # warehouse_world_cmd = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([warehouse_launch_path, '/no_roof_small_warehouse.launch.py'])
+    # )
+
     warehouse_world_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([warehouse_launch_path, '/no_roof_small_warehouse.launch.py'])
+        PythonLaunchDescriptionSource([robot_gazebo_launch_path, '/worlds_aruco.launch.py'])
     )
 
     # Add Here
@@ -34,7 +41,6 @@ def generate_launch_description():
         )
     )
 
-
     launch_teleop = Node(
         package='teleop_twist_keyboard',
         executable='teleop_twist_keyboard',
@@ -49,7 +55,9 @@ def generate_launch_description():
                 '-topic', 'robot_description',
                 '-b'],  # bond node to gazebo model,
         namespace='',
-        output='screen')
+        output='screen',
+        parameters=[{'verbose': 'true'}]  # Add verbose argument here
+    )
 
     ld = LaunchDescription()
 
