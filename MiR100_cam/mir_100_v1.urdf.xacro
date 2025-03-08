@@ -100,6 +100,7 @@
 
     <link name="${prefix}imu_frame" />
 
+    <!-- Add camera start -->
     <!-- camera -->
     <joint name="${prefix}base_link_to_camera_joint" type="fixed">
       <parent link="${prefix}base_link" />
@@ -127,7 +128,8 @@
     <gazebo reference="${prefix}camera_link">
       <material>Gazebo/Red</material>
 
-      <sensor name="camera" type="camera">
+      <!-- RGB Camera -->
+      <!-- <sensor name="rgb_camera" type="camera">
         <pose>0 0 0 0 0 0</pose>
         <visualize>true</visualize>
         <update_rate>10</update_rate>
@@ -143,15 +145,52 @@
             <far>8.0</far>
           </clip>
         </camera>
-        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <plugin name="rgb_camera_controller" filename="libgazebo_ros_camera.so">
           <always_on>true</always_on>
           <update_rate>10.0</update_rate>
-          <camera_name>${prefix}camera</camera_name>
+          <camera_name>${prefix}rgb_camera</camera_name>
           <frame_name>${prefix}camera_link_optical</frame_name>
-          <topic_name>${prefix}camera/image_raw</topic_name>
+          <topic_name>${prefix}camera/color/image_raw</topic_name>
+        </plugin>
+      </sensor> -->
+
+      <!-- Depth Camera -->
+      <sensor name="depth_camera" type="depth">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <depth_camera>
+          <horizontal_fov>1.089</horizontal_fov>
+          <image>
+            <format>FLOAT32</format>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>8.0</far>
+          </clip>
+        </depth_camera>
+
+        <!-- Depth Camera Plugin -->
+        <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
+          <always_on>true</always_on>
+          <update_rate>10.0</update_rate>
+          <camera_name>${prefix}depth_camera</camera_name>
+          <frame_name>${prefix}camera_link_optical</frame_name>
+          <topic_name>${prefix}camera/depth/image_raw</topic_name>
+        </plugin>
+
+        <!-- Point Cloud Plugin -->
+        <plugin name="point_cloud_plugin" filename="libgazebo_ros_point_cloud.so">
+          <always_on>true</always_on>
+          <update_rate>10.0</update_rate>
+          <frame_name>${prefix}camera_link_optical</frame_name>
+          <topic_name>${prefix}camera/depth/points</topic_name>
         </plugin>
       </sensor>
     </gazebo>
+    <!-- Add camera end -->
 
     <!-- Laser scanners -->
     <!-- virtual link for merged laserscan-->
