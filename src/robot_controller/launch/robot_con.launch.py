@@ -13,7 +13,7 @@ import xacro
 def generate_launch_description():
     robot_nav_pkg = 'robot_nav'
     robot_con_pkg = 'robot_controller'
-    robot_det_pkg = 'robot_detector'
+    robot_det_pkg = 'robot_detection'
 
     launch_description = LaunchDescription()
 
