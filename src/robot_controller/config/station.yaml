@@ -13,8 +13,8 @@
   x: 1.65
   y: 7.9
   yaw: 0.785
-- name: Station5
-  aruco_id: 5
+- name: Station4
+  aruco_id: 4
   x: -3.7
   y: 8.2
   yaw: 0.785
