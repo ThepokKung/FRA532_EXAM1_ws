@@ -2,7 +2,7 @@ import cv2
 import cv2.aruco as aruco
 
 # ตั้งค่า
-NUM_MARKERS = 6
+NUM_MARKERS = 9
 MARKER_SIZE = 500  # พิกเซล
 DICTIONARY = aruco.DICT_4X4_250  # ต้องตรงกับโค้ดตรวจจับ
 
