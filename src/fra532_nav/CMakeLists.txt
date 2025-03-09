@@ -48,6 +48,10 @@ install(TARGETS
 ################ INSTALL LAUNCH, ETC #################
 install(DIRECTORY
   # add directories here
+  launch 
+  maps 
+  params 
+  rviz
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()

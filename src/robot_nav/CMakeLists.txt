@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(fra532_slam)
+project(robot_nav)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -49,8 +49,9 @@ install(TARGETS
 install(DIRECTORY
   # add directories here
   launch
+  maps
+  params
   rviz
-  config
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()
