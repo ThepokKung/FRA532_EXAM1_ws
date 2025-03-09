@@ -4,7 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 import os
 import yaml
 from robot_interfaces.srv import Station2GO, Target2GO, SetID
-
+from std_srvs.srv import SetBool
 
 class SchedulerNode(Node):
     def __init__(self):
@@ -21,6 +21,7 @@ class SchedulerNode(Node):
         self.srv_station2go = self.create_service(Station2GO, 'station_to_go', self.station_to_go_callback)
         self.target_to_go_client = self.create_client(Target2GO, 'target_to_go')
         self.set_id_client = self.create_client(SetID, 'set_target_id')
+        self.call_docking = self.create_client(SetBool, 'toggle_docking')
 
         self.get_logger().info('✅ Scheduler node has been started.')
 
@@ -64,11 +65,39 @@ class SchedulerNode(Node):
             response.success = False
             response.message = "❌ Failed to set target ID."
             return response
+        
+        # เรียก Toggle Docking Service
+        if not self.call_toggle_docking(True):
+            response.success = False
+            response.message = "❌ Failed to toggle docking."
+            return response
 
         response.success = True
         response.message = f"✅ Successfully sent robot to {request.station}"
         return response
+    
+    def call_toggle_docking(self, enable):
+        """เรียก Service Toggle Docking"""
+        if not self.call_docking.wait_for_service(timeout_sec=3.0):
+            self.get_logger().error("❌ Toggle Docking service not available!")
+            return False
 
+        docking_request = SetBool.Request()
+        docking_request.data = enable
+
+        future = self.call_docking.call_async(docking_request)
+        future.add_done_callback(self.handle_toggle_docking_response)
+        return True
+    
+    def handle_toggle_docking_response(self, future):
+        """Callback เมื่อได้รับผลลัพธ์จาก Toggle Docking"""
+        try:
+            result = future.result()
+            self.get_logger().info(f"✅ Toggle docking service succeeded: {result}")
+        except Exception as e:
+            self.get_logger().error(f"❌ Toggle docking service failed: {e}")
+
+    
     def call_target_to_go(self, station_data):
         """เรียก Service Target2GO"""
         if not self.target_to_go_client.wait_for_service(timeout_sec=3.0):
