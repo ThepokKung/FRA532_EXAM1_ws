@@ -16,7 +16,7 @@ def generate_launch_description():
     pkg_share = FindPackageShare(package='fra532_gazebo').find('fra532_gazebo')
 
     # Path to the .world file you want to load
-    world_file_name = 'warehouse.world'
+    world_file_name = 'warehouse_wall_light.world'
     world_path = os.path.join(pkg_share, 'worlds', world_file_name)
 
     # Path to the models folder you want Gazebo to find

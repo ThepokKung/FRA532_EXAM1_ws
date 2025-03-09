@@ -9,7 +9,7 @@ def generate_launch_description():
     # 1) Find the path to your fra532_gazebo package
     fra532_gazebo_pkg_dir = get_package_share_directory('fra532_gazebo')
     # Path to the goofy_office.launch.py file
-    goofy_office_launch_path = os.path.join(fra532_gazebo_pkg_dir, 'launch', 'goofy_office.launch.py')
+    goofy_office_launch_path = os.path.join(fra532_gazebo_pkg_dir, 'launch', 'warehouse_bringup.launch.py')
 
     # 2) Include the launch file that starts Gazebo with goofy_office.world
     goofy_office_world_cmd = IncludeLaunchDescription(
