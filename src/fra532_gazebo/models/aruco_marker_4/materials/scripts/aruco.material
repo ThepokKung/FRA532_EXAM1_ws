@@ -1,0 +1,24 @@
+material AruCo/Marker4
+{
+  technique
+  {
+    pass
+    {
+      lighting on  // เปิดการคำนวณแสง
+
+      // เพิ่ม ambient และ diffuse เพื่อให้สว่างขึ้น
+      ambient 1.0 1.0 1.0 1.0  // สี RGB, ความสว่าง (1.0 = สูงสุด)
+      diffuse 1.0 1.0 1.0 1.0
+
+      // ทำให้วัตถุเปล่งแสงเอง (emissive)
+      emissive 0.8 0.8 0.8 1.0  // สีขาวสว่าง
+
+      texture_unit
+      {
+        texture ../textures/aruco_marker_4.png
+        filtering anisotropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
