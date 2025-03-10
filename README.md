@@ -13,6 +13,10 @@
     - [3.Clone AWS Warehourse](#3clone-aws-warehourse)
     - [4.Add cam to MIR](#4add-cam-to-mir)
   - [Usage](#usage)
+    - [Run Simulation](#run-simulation)
+    - [Run naviation](#run-naviation)
+    - [Run robot\_controll systemp](#run-robot_controll-systemp)
+    - [Run inspection\_node](#run-inspection_node)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -89,7 +93,28 @@ cp MiR100_cam/mir_100_v1.urdf.xacro src/mir_robot/mir_description/urdf/include/m
 ```
 
 ## Usage
-Examples of how to use the project.
+### Run Simulation
+```bash
+ros2 launch robot_gazebo sim.launch.py
+```
+
+### Run naviation
+```bash
+ros2 launch robot_nav navigation.launch.py
+```
+
+ใน RVIZ using 2D pose Estimate ด้วย
+
+### Run robot_controll systemp
+```bash
+ros2 launch robot_controller robot_con.launch.py
+```
+
+### Run inspection_node
+**BUG อยู่ รี Node ด้วยหลังรีันแต่ละรอบ กำลังแก้**
+```bash
+ros2 run robot_nav inspection.launch.py
+```
 
 ## Contributing
 Guidelines for contributing to the project.

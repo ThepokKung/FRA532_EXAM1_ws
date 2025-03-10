@@ -29,6 +29,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   # scripts/dummy_script.py
   scripts/nav2_go.py
+  scripts/inspection_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
