@@ -49,6 +49,7 @@ install(TARGETS
 install(DIRECTORY
   # add directories here
   launch
+  worlds
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()

@@ -7,5 +7,7 @@ src/mir_robot/
 src/aws-robomaker-small-warehouse-world/
 src/ira_laser_tools/
 src/twist_stamper/
+
+src/robot_test/
 Drop_file
 .vscode
