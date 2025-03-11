@@ -1,13 +1,5 @@
-import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler
-from launch.event_handlers import OnProcessExit
-import xacro
 
 
 def generate_launch_description():
@@ -25,6 +17,14 @@ def generate_launch_description():
         )
     launch_description.add_action(nav2go_node)
 
+    inspection_node = Node(
+            package=robot_nav_pkg,
+            namespace='',
+            executable='inspection_node.py',
+            name='inspection_node',
+        )
+    launch_description.add_action(inspection_node)
+
     scheduler_node = Node(
             package=robot_con_pkg,
             namespace='',
@@ -41,5 +41,4 @@ def generate_launch_description():
         )
     launch_description.add_action(aruco_detect_node)
     
-
     return launch_description
