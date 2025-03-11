@@ -125,15 +125,11 @@ class MultiStationNavigationAndDocking(Node):
         goal_msg.pose.pose.position.x = station['x']
         goal_msg.pose.pose.position.y = station['y']
         goal_msg.pose.pose.position.z = 0.0
-        
-        # Convert yaw to quaternion components (only z and w are nonzero).
         yaw = station['yaw']
         goal_msg.pose.pose.orientation.x = 0.0
         goal_msg.pose.pose.orientation.y = 0.0
         goal_msg.pose.pose.orientation.z = yaw
         goal_msg.pose.pose.orientation.w = 1.0
-        # goal_msg.pose.pose.orientation.z = math.sin(yaw / 2.0)
-        # goal_msg.pose.pose.orientation.w = math.cos(yaw / 2.0)
         
         send_goal_future = self.navigate_action_client.send_goal_async(goal_msg)
         while not send_goal_future.done():

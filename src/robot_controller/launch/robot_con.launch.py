@@ -25,13 +25,13 @@ def generate_launch_description():
         )
     launch_description.add_action(inspection_node)
 
-    scheduler_node = Node(
-            package=robot_con_pkg,
-            namespace='',
-            executable='scheduler_node.py',
-            name='scheduler_node',
-        )
-    launch_description.add_action(scheduler_node)
+    # scheduler_node = Node(
+    #         package=robot_con_pkg,
+    #         namespace='',
+    #         executable='scheduler_node.py',
+    #         name='scheduler_node',
+    #     )
+    # launch_description.add_action(scheduler_node)
 
     aruco_detect_node = Node(
             package=robot_det_pkg,

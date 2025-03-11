@@ -31,6 +31,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Target2GO.srv"
   "srv/Station2GO.srv"
   "srv/MultiTarget2GO.srv"
+  "srv/BatteryUpdate.srv"
   DEPENDENCIES geometry_msgs std_msgs 
 )
 
