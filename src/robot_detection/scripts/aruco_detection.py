@@ -38,16 +38,20 @@ class ArucoDocker(Node):
         )
         self.ts.registerCallback(self.synced_image_pc_callback)
 
-        # Publisher
+        # Publishers
         self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.aruco_vision_pub = self.create_publisher(Image, '/ArUco_vision', 10)
 
         # Services
         self.srv = self.create_service(
-            SetBool, 'toggle_docking', self.toggle_docking_callback)
+            SetBool, '/docking_with_aruco', self.toggle_docking_callback)
         self.srv_id = self.create_service(
-            SetID, 'set_target_id', self.set_target_id_callback)
-        self.docking_starus = self.create_client(
-            SetBool, '/set_docking_status')
+            SetID, '/set_aruco_station_id', self.set_target_id_callback)
+        self.docking_status_srv = self.create_service(
+            SetBool, '/docking_aruco_status', self.docking_status_callback)
+
+        # Docking status
+        self.docking_aruco_status = False
 
         # Parameters
         self.aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
@@ -66,6 +70,14 @@ class ArucoDocker(Node):
         self.dist_coeffs = None
 
         self.get_logger().info("Aruco Docker node has been started.")
+
+    def docking_status_callback(self, request, response):
+        response.success = self.docking_aruco_status
+        response.message = f"Docking status set {'successfully' if self.docking_aruco_status else 'not success'}."
+
+        if response.success:
+            self.docking_aruco_status = False
+        return response
 
     def toggle_docking_callback(self, request, response):
         self.docking_enabled = request.data
@@ -164,16 +176,8 @@ class ArucoDocker(Node):
                                 status = "ALIGNING"
                             elif distance <= self.target_distance + 0.0002:
                                 status = "DOCKED!"
-                                # Replace the service call block under "DOCKED!" with:
-                                if self.docking_starus.service_is_ready():
-                                    request = SetBool.Request()
-                                    request.data = True
-                                    future = self.docking_starus.call_async(
-                                        request)
-                                    future.add_done_callback(
-                                        self.handle_docking_status_response)
-                                else:
-                                    self.get_logger().error("Service /set_docking_status not available.")
+                                self.docking_aruco_status = True
+                                self.docking_enabled = False
 
                             elif distance > self.target_distance:
                                 cmd_vel.linear.x = self.Kp_linear * \
@@ -202,11 +206,14 @@ class ArucoDocker(Node):
             cv2.imshow("AruCo Docking", cv_image)
             cv2.waitKey(1)
 
+            # Publish the processed image to /ArUco_vision
+            vision_msg = self.bridge.cv2_to_imgmsg(cv_image, "bgr8")
+            self.aruco_vision_pub.publish(vision_msg)
+
         except Exception as e:
             self.get_logger().error(f"Error: {str(e)}")
             self.cmd_vel_pub.publish(Twist())
 
-            # Add this method to the class:
     def handle_docking_status_response(self, future):
         try:
             response = future.result()

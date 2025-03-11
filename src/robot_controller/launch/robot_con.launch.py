@@ -40,5 +40,6 @@ def generate_launch_description():
             name='aruco_detect_node',
         )
     launch_description.add_action(aruco_detect_node)
+    
 
     return launch_description

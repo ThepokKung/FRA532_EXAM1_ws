@@ -1,216 +1,213 @@
-#! /usr/bin/env python3
-
-import time
-from copy import deepcopy
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from rclpy.executors import MultiThreadedExecutor
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
-from geometry_msgs.msg import PoseStamped
 import os
 import yaml
+import math
+import time
+import threading
 from ament_index_python.packages import get_package_share_directory
-from robot_navigator import BasicNavigator
+
+# Action and Service imports
+from nav2_msgs.action import NavigateToPose
 from robot_interfaces.srv import MultiTarget2GO, SetID
 from std_srvs.srv import SetBool
+from rclpy.action import ActionClient
 
 
-class InspectionNode(Node):
+class MultiStationNavigationAndDocking(Node):
     def __init__(self):
-        super().__init__('inspection_node')
-        self.navigator = BasicNavigator()
-
-        self.declare_parameter('station_path', 'robot_controller')
-        self.station_path = self.get_parameter('station_path').value
-
-        # โหลด Station List จากไฟล์ YAML
-        path_file = os.path.join(get_package_share_directory(
-            self.station_path), 'config', 'station.yaml')
-        self.station_list = self.load_station(path_file)
-
-        # สร้าง Service
-        self.multi_target_service_cb = MutuallyExclusiveCallbackGroup()
-        self.multi_target_service = self.create_service(MultiTarget2GO, 'multi_target_service', self.handle_multi_target_request,callback_group=self.multi_target_service_cb)
-        self.set_target_id_cb = MutuallyExclusiveCallbackGroup()
-        self.set_id_client = self.create_client(SetID, 'set_target_id',callback_group=self.set_target_id_cb)
-        self.call_docking_cb = MutuallyExclusiveCallbackGroup()
-        self.call_docking = self.create_client(SetBool, 'toggle_docking',callback_group=self.call_docking_cb)
-
-        # สถานะ Docking
-        self.docking_status_cb = MutuallyExclusiveCallbackGroup()
-        self.docking_status = False
-        self.docking_service = self.create_service(SetBool, 'set_docking_status', self.set_docking_status_cb,callback_group=self.docking_status_cb)
-
-        # Task Control
-        self.current_task = None  # เก็บ Task ที่กำลังทำงานอยู่
-        self.get_logger().info('✅ Inspection node started and waiting for tasks.')
-
-    def set_docking_status_cb(self, request, response):
-        """Callback สำหรับอัพเดทสถานะ docking"""
-        self.docking_status = request.data
-        response.success = True
-        response.message = 'Docking status updated'
-        return response
-
-    def handle_multi_target_request(self, request, response):
-        """Callback เมื่อได้รับคำขอ multi target"""
-        self.get_logger().info(f'🔔 Received new multi-target request: {request.target_names}')
-
-        # ✅ รีเซ็ต Task หากไม่มีงานที่กำลังทำอยู่
-        if self.current_task and not self.current_task.done():
-            self.get_logger().warn('⚠️ Previous mission still running. Skipping new request.')
-            response.success = False
-            response.message = 'Previous mission still running'
-            return response
-
-        # ✅ สร้าง Task ใหม่
-        self.current_task = self.executor.create_task(self.run(request.target_names))
-        self.get_logger().info(f'🚀 Started new mission: {request.target_names}')
-
-        response.success = True
-        response.message = 'Mission started'
-        return response
-
-
-    def load_station(self, path_file):
-        """โหลดข้อมูลสถานีจากไฟล์ YAML"""
-        if os.path.exists(path_file):
-            try:
-                with open(path_file, 'r') as file:
-                    data = yaml.safe_load(file)
-                    stations = data.get('path', data) if isinstance(
-                        data, dict) else data
-                    self.get_logger().info(
-                        f"✅ Loaded {len(stations)} waypoints from {path_file}")
-                    return stations
-            except yaml.YAMLError as e:
-                self.get_logger().error(f"❌ Error loading YAML file: {e}")
-                return []
-        else:
-            self.get_logger().error(f"❌ Path file not found: {path_file}")
-            return []
-
-    def run(self, target_names):
-        """ฟังก์ชันหลักที่ทำการเคลื่อนที่ไปยังเป้าหมาย"""
-        self.navigator.waitUntilNav2Active()
-
-        # ✅ เรียงลำดับ Target ตามลำดับที่ถูกส่งมา
-        target_stations = sorted(
-            [pt for pt in self.station_list if pt['name'] in target_names],
-            key=lambda x: target_names.index(x['name'])
-        )
-
-        if not target_stations:
-            self.get_logger().warn('⚠️ No valid targets found. Skipping mission.')
-            return
+        super().__init__('multi_station_navigation_and_docking')
         
-        self.get_logger().info(f'🚀 Starting mission with {len(target_stations)} waypoints.')
-
-        for idx, pt in enumerate(target_stations):
-            inspection_pose = PoseStamped()
-            inspection_pose.header.frame_id = 'map'
-            inspection_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-            inspection_pose.pose.position.x = pt['x']
-            inspection_pose.pose.position.y = pt['y']
-            inspection_pose.pose.orientation.z = pt['yaw']
-            inspection_pose.pose.orientation.w = 1.0
-
-            self.get_logger().info(f'🚀 Moving to station {pt["name"]} ({idx+1}/{len(target_stations)})')
-
-            # ✅ ส่งเป้าหมายให้ Nav2
-            self.navigator.goToPose(inspection_pose)
-
-            while not self.navigator.isNavComplete():
-                self.get_logger().debug('⌛ Waiting for navigation to complete...')
-                rclpy.spin_once(self, timeout_sec=0.1)
+        # Use the "robot_controller" package for the station YAML file.
+        self.station_path = 'robot_controller'
+        path_file = os.path.join(get_package_share_directory(self.station_path), 'config', 'station.yaml')
+        self.station_list = self.load_station(path_file)
+        
+        # Create the /multi_station_2go service.
+        self.multi_station_service = self.create_service(
+            MultiTarget2GO,
+            '/multi_station_2go',
+            self.multi_station_callback
+        )
+        
+        # Create an action client for the Nav2 NavigateToPose action.
+        self.navigate_action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
+        
+        # Create service clients for setting the ArUco station ID and starting docking.
+        self.set_aruco_client = self.create_client(SetID, '/set_aruco_station_id')
+        self.docking_client = self.create_client(SetBool, '/docking_with_aruco')
+        
+        # Create a service client for checking docking status.
+        self.docking_status_client = self.create_client(SetBool, '/docking_aruco_status')
+        
+        # Wait for the service clients to become available.
+        while not self.set_aruco_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Waiting for /set_aruco_station_id service...')
+        while not self.docking_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Waiting for /docking_with_aruco service...')
+        while not self.docking_status_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Waiting for /docking_status service...')
+        
+        self.get_logger().info('MultiStationNavigationAndDocking node initialized.')
+    
+    def load_station(self, filepath):
+        """Load the station database from a YAML file."""
+        try:
+            with open(filepath, 'r') as f:
+                stations = yaml.safe_load(f)
+            self.get_logger().info(f"Loaded {len(stations)} stations from {filepath}")
+            return stations
+        except Exception as e:
+            self.get_logger().error(f"Failed to load station file: {e}")
+            return []
+        
+    def multi_station_callback(self, request, response):
+        """
+        Service callback for /multi_station_2go.
+        Validates station names and spawns a background thread to run the navigation and docking sequence.
+        """
+        target_names = request.target_names
+        
+        # Validate that each target name exists in the loaded station list.
+        for target in target_names:
+            if not any(station['name'] == target for station in self.station_list):
+                self.get_logger().error(f"Station name '{target}' not found in database.")
+                response.success = False
+                response.message = f"Station '{target}' not found in database."
+                return response
+        
+        response.success = True  # All station names are valid.
+        response.message = "All target stations are valid Task start."
+        self.get_logger().info("All target station names are valid. Starting sequence in background...")
+        
+        # Process the navigation/docking sequence in a background thread.
+        threading.Thread(target=self.process_stations, args=(target_names,), daemon=True).start()
+        
+        return response
+    
+    def process_stations(self, target_names):
+        """Process navigation and docking for each station asynchronously."""
+        for target in target_names:
+            station = next(st for st in self.station_list if st['name'] == target)
+            self.get_logger().info(f"Navigating to station: {target}")
+            
+            # Navigate to the station.
+            if not self.navigate_to_station(station):
+                self.get_logger().error(f"Navigation failed for station: {target}")
+                continue
+            
+            # Upon successful navigation, set the ArUco ID.
+            if not self.set_aruco_station_id(station['aruco_id']):
+                self.get_logger().error(f"Failed to set ArUco ID for station: {target}")
+                continue
+            
+            # Initiate docking.
+            if not self.start_docking():
+                self.get_logger().error(f"Docking initiation failed for station: {target}")
+                continue
+            
+            # Wait for real docking completion via /docking_status.
+            if not self.wait_for_docking():
+                self.get_logger().error(f"Docking did not complete for station: {target}")
+                continue
+            
+            self.get_logger().info(f"Successfully navigated and docked at station: {target}")
+    
+    def navigate_to_station(self, station):
+        """Send a navigation goal to the Nav2 NavigateToPose action server."""
+        if not self.navigate_action_client.wait_for_server(timeout_sec=5.0):
+            self.get_logger().error("NavigateToPose action server not available!")
+            return False
+        
+        goal_msg = NavigateToPose.Goal()
+        goal_msg.pose.header.frame_id = 'map'
+        goal_msg.pose.pose.position.x = station['x']
+        goal_msg.pose.pose.position.y = station['y']
+        goal_msg.pose.pose.position.z = 0.0
+        
+        # Convert yaw to quaternion components (only z and w are nonzero).
+        yaw = station['yaw']
+        goal_msg.pose.pose.orientation.x = 0.0
+        goal_msg.pose.pose.orientation.y = 0.0
+        goal_msg.pose.pose.orientation.z = yaw
+        goal_msg.pose.pose.orientation.w = 1.0
+        # goal_msg.pose.pose.orientation.z = math.sin(yaw / 2.0)
+        # goal_msg.pose.pose.orientation.w = math.cos(yaw / 2.0)
+        
+        send_goal_future = self.navigate_action_client.send_goal_async(goal_msg)
+        while not send_goal_future.done():
+            time.sleep(0.1)
+        goal_handle = send_goal_future.result()
+        if not goal_handle.accepted:
+            self.get_logger().error("Navigation goal was rejected by the action server.")
+            return False
+        
+        self.get_logger().info("Navigation goal accepted. Waiting for result...")
+        get_result_future = goal_handle.get_result_async()
+        while not get_result_future.done():
+            time.sleep(0.1)
+        self.get_logger().info("Navigation action completed.")
+        return True
+    
+    def set_aruco_station_id(self, aruco_id):
+        """Call the /set_aruco_station_id service to set the current station's ArUco ID."""
+        request = SetID.Request()
+        request.aruco_id = aruco_id
+        future = self.set_aruco_client.call_async(request)
+        while not future.done():
+            time.sleep(0.1)
+        if future.result() is not None:
+            self.get_logger().info(f"ArUco station ID {aruco_id} set successfully.")
+            return True
+        else:
+            self.get_logger().error("Failed to call /set_aruco_station_id service.")
+            return False
+    
+    def start_docking(self):
+        """
+        Call the /docking_with_aruco service to initiate docking.
+        Assumes the docking process is handled externally.
+        """
+        request = SetBool.Request()
+        request.data = True
+        future = self.docking_client.call_async(request)
+        while not future.done():
+            time.sleep(0.1)
+        if future.result() is not None:
+            self.get_logger().info("Docking initiated successfully.")
+            return True
+        else:
+            self.get_logger().error("Failed to initiate docking.")
+            return False
+    
+    def wait_for_docking(self, timeout_sec=120):
+        """
+        Poll the external /docking_status service until it returns success or until the timeout expires.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout_sec:
+            request = SetBool.Request()
+            # The request field can be used as needed; here we simply send True.
+            request.data = True
+            future = self.docking_status_client.call_async(request)
+            while not future.done():
                 time.sleep(0.1)
-
-            # ✅ ตรวจสอบผลลัพธ์ของ Nav2
-            nav_result = self.navigator.getResult()
-            self.get_logger().info(f'🛠️ Navigation result: {nav_result}')  
-
-            if nav_result != nav_result.SUCCEEDED:
-                self.get_logger().warn(f'❌ Navigation to {pt["name"]} failed. Skipping.')
-                continue
-
-            self.get_logger().info(f'✅ Successfully arrived at {pt["name"]}. Proceeding with tasks.')
-
-            # ✅ ตรวจสอบ Service
-            try:
-                # ตั้งค่า ArUco ID
-                aruco_id = pt['aruco_id']
-                set_id_req = SetID.Request()
-                set_id_req.aruco_id = aruco_id
-
-                if self.set_id_client.wait_for_service(timeout_sec=5.0):
-                    future = self.set_id_client.call_async(set_id_req)
-                    while not future.done():
-                        rclpy.spin_once(self, timeout_sec=0.1)
-
-                    response = future.result()
-                    self.get_logger().info(f'🆔 Set ArUco ID to {aruco_id} success: {response}')
-                else:
-                    raise RuntimeError('Service /set_target_id not available')
-
-                # เปิด Docking
-                dock_req = SetBool.Request()
-                dock_req.data = True
-
-                if self.call_docking.wait_for_service(timeout_sec=5.0):
-                    future = self.call_docking.call_async(dock_req)
-                    while not future.done():
-                        rclpy.spin_once(self, timeout_sec=0.1)
-
-                    response = future.result()
-                    self.get_logger().info(f'⚡ Activated docking sequence: {response}')
-                else:
-                    raise RuntimeError('Service /toggle_docking not available')
-
-                # ✅ รอสถานะ Docking
-                self.docking_status = False
-                while not self.docking_status:
-                    rclpy.spin_once(self, timeout_sec=0.1)
-                    time.sleep(0.1)
-                self.get_logger().info('✅ Docking confirmed!')
-
-                # ปิด Docking หลังเสร็จสิ้น
-                undock_req = SetBool.Request()
-                undock_req.data = False
-
-                if self.call_docking.wait_for_service(timeout_sec=5.0):
-                    future = self.call_docking.call_async(undock_req)
-                    while not future.done():
-                        rclpy.spin_once(self, timeout_sec=0.1)
-
-                    response = future.result()
-                    self.get_logger().info(f'⚓ Docking disabled: {response}')
-                else:
-                    self.get_logger().error('❌ Service /toggle_docking not available when disabling')
-
-            except Exception as e:
-                self.get_logger().error(f'❌ Error at station {pt["name"]}: {str(e)}')
-                continue
-
-        self.get_logger().info('🎉 Mission completed!')
-        self.current_task = None  # ✅ รีเซ็ต Task
-
+            result = future.result()
+            if result is not None and result.success:
+                self.get_logger().info("Docking completed successfully.")
+                return True
+            time.sleep(0.5)
+        self.get_logger().error("Docking did not complete within the timeout period.")
+        return False
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = InspectionNode()
-
-    # ใช้ MultiThreadedExecutor เพื่อรองรับ task หลายตัวพร้อมกัน
-    executor = MultiThreadedExecutor()
-    executor.add_node(node)
-
-    try:
-        executor.spin()
-    except KeyboardInterrupt:
-        node.get_logger().info('🛑 Shutting down...')
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    node = MultiStationNavigationAndDocking()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
