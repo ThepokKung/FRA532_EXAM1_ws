@@ -29,6 +29,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   # scripts/dummy_script.py
   scripts/robot_state.py
+  scripts/battery_monitor_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

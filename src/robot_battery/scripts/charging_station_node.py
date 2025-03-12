@@ -2,155 +2,156 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
-import yaml
-import os
-from ament_index_python.packages import get_package_share_directory
-from rclpy.action import ActionClient
-from nav2_msgs.action import NavigateToPose
 import time
 from std_srvs.srv import SetBool
+
+from robot_interfaces.srv import RobotStateUpdate, RobotStateCheck, RobotStationCheck, RobotStationUpdate, BatteryUpdate
+
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+
 
 class ChargingStationNode(Node):
     def __init__(self):
         super().__init__('ChargeStationNode')
 
-        # Load charging station info
-        self.station_path = 'robot_controller'
-        path_file = os.path.join(get_package_share_directory(self.station_path), 'config', 'station.yaml')
-        self.charger_station = self.load_station(path_file)
+        self.charger_call_server = self.create_service(SetBool, 'charger_call', self.charger_call_callback)
 
-        # Battery level subscriber
-        self.battery_level_monitor = self.create_subscription(Float32, 'battery_level', self.battery_status_callback, 10)
+        # Battery level update
+        self.battery_update_level_client_cbg = MutuallyExclusiveCallbackGroup()
+        self.battery_update_level_client = self.create_client(
+            BatteryUpdate, 'battery_level_update', callback_group=self.battery_update_level_client_cbg)
 
-        # Action client for navigation
-        self.navigate_action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
+        # Robot state and station services
+        self.robot_station_check_cbg = MutuallyExclusiveCallbackGroup()
+        self.robot_station_update_cbg = MutuallyExclusiveCallbackGroup()
+        self.robot_state_check_cbg = MutuallyExclusiveCallbackGroup()
+        self.robot_state_update_cbg = MutuallyExclusiveCallbackGroup()
 
-        # Service client for starting charging
-        self.charger_call_client = self.create_client(SetBool, 'charger_call')
-
-        # Wait for required services
-        self.wait_for_services()
+        self.robot_station_check = self.create_client(
+            RobotStationCheck, '/check_robot_station', callback_group=self.robot_station_check_cbg)
+        self.robot_station_update = self.create_client(
+            RobotStationUpdate, '/update_robot_station', callback_group=self.robot_station_update_cbg)
+        self.robot_state_check = self.create_client(
+            RobotStateCheck, '/check_robot_state', callback_group=self.robot_state_check_cbg)
+        self.robot_state_update = self.create_client(
+            RobotStateUpdate, '/update_robot_state', callback_group=self.robot_state_update_cbg)
 
         self.get_logger().info('Charge station node has been started.')
 
-    def load_station(self, filepath):
-        """Load the charging station from YAML file."""
-        try:
-            with open(filepath, 'r') as f:
-                data = yaml.safe_load(f)
-                for station in data:
-                    if station['name'] == 'ChangeStation':
-                        self.get_logger().info(f"Loaded charging station: {station['name']}")
-                        return station  # Return the first matching station
-            self.get_logger().error("No 'ChangeStation' found in station file.")
-            return None
-        except Exception as e:
-            self.get_logger().error(f"Failed to load station file: {e}")
-            return None
+    def charger_call_callback(self, request, response):
+        """Callback function to handle charging requests."""
+        if request.data:
+            # Check if robot state allows navigation
+            robot_state = self.check_robot_state()
+            self.get_logger().info(f"Robot state received: {robot_state}")
 
-    def wait_for_services(self):
-        """Wait for necessary services to be available."""
-        # Wait for charger_call service
-        while not self.charger_call_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for charger_call service...')
+            if robot_state and robot_state.strip() != "None":
+                self.get_logger().error(f"Robot state is '{robot_state}', not 'None'. Charger denied.")
+                response.success = False
+                response.message = f"Charger denied. Robot state: '{robot_state}'."
+                return response
+            
+            robot_station = self.check_robot_station()
+            self.get_logger().info(f"Robot station received: {robot_station}")
 
-        # Wait for NavigateToPose action server
-        self.get_logger().info("Waiting for NavigateToPose action server...")
-        self.navigate_action_client.wait_for_server()
-        self.get_logger().info("NavigateToPose action server is ready.")
-
-
-    def battery_status_callback(self, msg):
-        """Check battery status and take action."""
-        battery_level = msg.data
-        if battery_level < 20:
-            self.get_logger().info('Battery level is low. Navigating to charger.')
-
-            if self.charger_station:
-                # Navigate to charging station
-                if self.navigate_to_station(self.charger_station):
-                    self.get_logger().info("Arrived at charging station. Starting charging process.")
-                    self.start_charging()
-                else:
-                    self.get_logger().error("Failed to reach charging station.")
+            if robot_station and robot_station.strip() != "ChangeStation":
+                self.get_logger().error(f"Robot station is '{robot_station}', not 'ChangeStation'. Charger denied.")
+                response.success = False
+                response.message = f"Charger denied. Robot station: '{robot_station}'."
+                return response
+            
+            # Update battery level
+            self.get_logger().info("Updating battery level to 100%...")
+            if self.battery_level_update(100):
+                self.get_logger().info("Charging station has been charged successfully.")
+                response.success = True
+                response.message = "Charging station has been charged."
             else:
-                self.get_logger().error('No charger station found in the configuration.')
-
-        elif battery_level > 80:
-            self.get_logger().info('Battery level is high. Stopping charging.')
-            self.stop_charging()
+                self.get_logger().error("Failed to update battery level.")
+                response.success = False
+                response.message = "Failed to update battery level."
+            
+            return response
         else:
-            self.get_logger().info('Battery level is normal. No action needed.')
+            self.get_logger().info("Charging station has been stopped.")
+            response.success = False
+            response.message = "Charging station has been stopped."
+            return response
 
-    def navigate_to_station(self, station):
-        """Send a navigation goal to NavigateToPose."""
-        if not self.navigate_action_client.wait_for_server(timeout_sec=5.0):
-            self.get_logger().error("NavigateToPose action server not available!")
-            return False
+    def update_robot_state(self, state):
+        """Update robot state via service."""
+        request = RobotStateUpdate.Request()
+        request.state = state
+        future = self.robot_state_update.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+        return future.result() is not None
 
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose.header.frame_id = 'map'
-        goal_msg.pose.pose.position.x = station['x']
-        goal_msg.pose.pose.position.y = station['y']
-        goal_msg.pose.pose.position.z = 0.0
-
-        # Set orientation (yaw)
-        goal_msg.pose.pose.orientation.z = station['yaw']
-        goal_msg.pose.pose.orientation.w = station['yaw']
-
-
-        send_goal_future = self.navigate_action_client.send_goal_async(goal_msg)
-
-        while not send_goal_future.done():
-            time.sleep(0.1)
-        goal_handle = send_goal_future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().error("Navigation goal was rejected.")
-            return False
-
-        self.get_logger().info("Navigation goal accepted. Waiting for result...")
-        get_result_future = goal_handle.get_result_async()
-        while not get_result_future.done():
-            time.sleep(0.1)
-
-        self.get_logger().info("Navigation completed successfully.")
-        return True
-
-    def start_charging(self):
-        """Call the charger_call service to start charging."""
-        request = SetBool.Request()
-        request.data = True
-        future = self.charger_call_client.call_async(request)
+    def update_robot_station(self, station):
+        """Update robot station via service."""
+        request = RobotStationUpdate.Request()
+        request.station = station
+        future = self.robot_station_update.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+        return future.result() is not None
+    
+    def check_robot_station(self):
+        """Call the /check_robot_station service to get the current station's ArUco ID."""
+        request = RobotStationCheck.Request()
+        request.checkstation = True
+        future = self.robot_station_check.call_async(request)  # ✅ Fixed this line
+        
         while not future.done():
             time.sleep(0.1)
 
-        if future.result() is not None and future.result().success:
-            self.get_logger().info("Charging started successfully.")
+        if future.result() is not None:
+            self.get_logger().info(f"Robot station is at: {future.result().station}")
+            return future.result().station
         else:
-            self.get_logger().error("Failed to start charging.")
+            self.get_logger().error("Failed to call /check_robot_station service.")
+            return None
+        
+    def check_robot_state(self):
+        """Call the /check_robot_state service to get the current robot state."""
+        request = RobotStateCheck.Request()
+        request.checkstate = True
+        future = self.robot_state_check.call_async(request)
 
-    def stop_charging(self):
-        """Call the charger_call service to stop charging."""
-        request = SetBool.Request()
-        request.data = False
-        future = self.charger_call_client.call_async(request)
-        while not future.done():
+        while not future.done():  # Avoid blocking the service
             time.sleep(0.1)
 
-        if future.result() is not None and future.result().success:
-            self.get_logger().info("Charging stopped successfully.")
+        if future.result() is not None:
+            self.get_logger().info(f"Robot is currently at state: {future.result().state}")
+            return future.result().state
         else:
-            self.get_logger().error("Failed to stop charging.")
+            self.get_logger().error("Failed to call /check_robot_state service.")
+            return None
+        
+    def battery_level_update(self, level):
+        """Update battery level via service."""
+        request = BatteryUpdate.Request()
+        request.battery_level = level
+        future = self.battery_update_level_client.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
 
+        result = future.result()
+        if result is not None:
+            self.get_logger().info("Battery level updated successfully.")
+            return True
+        else:
+            self.get_logger().error("Battery level update failed.")
+            return False
 
 def main(args=None):
     rclpy.init(args=args)
     node = ChargingStationNode()
-    rclpy.spin(node)
+
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    executor.spin()
+
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

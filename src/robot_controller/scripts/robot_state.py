@@ -37,8 +37,8 @@ class RobotStateNode(Node):
         """
         Callback function to handle station updates.
         """
-        self.current_state = request.station
-        self.get_logger().info(f"Robot is station now at: {self.current_state}")
+        self.current_station = request.station
+        self.get_logger().info(f"Robot is station now at: {self.current_station}")
         
         # Return response
         response.success = True
@@ -52,7 +52,7 @@ class RobotStateNode(Node):
         response.state = self.current_state
         response.success = True
         response.message = f"Robot is currently state at: {self.current_state}"
-        self.get_logger().info(f"Robot is currently at: {self.current_state}")
+        self.get_logger().info(f"Robot is currently state at: {self.current_state}")
         return response
 
     def check_station_callback(self,request, response):
@@ -61,8 +61,8 @@ class RobotStateNode(Node):
         """
         response.station = self.current_station
         response.success = True
-        response.message = f"Robot is currently station at: {self.current_state}"
-        self.get_logger().info(f"Robot is currently at: '{self.current_state}' (type: {type(self.current_state)})")
+        response.message = f"Robot is currently station at: {self.current_station}"
+        self.get_logger().info(f"Robot is currently station at: '{self.current_station}'")
         return response
 
 

@@ -17,21 +17,21 @@ def generate_launch_description():
         )
     launch_description.add_action(nav2go_node)
 
-    # inspection_node = Node(
-    #         package=robot_nav_pkg,
-    #         namespace='',
-    #         executable='inspection_node.py',
-    #         name='inspection_node',
-    #     )
-    # launch_description.add_action(inspection_node)
+    inspection_node = Node(
+            package=robot_nav_pkg,
+            namespace='',
+            executable='inspection_node.py',
+            name='inspection_node',
+        )
+    launch_description.add_action(inspection_node)
 
-    # scheduler_node = Node(
-    #         package=robot_con_pkg,
-    #         namespace='',
-    #         executable='scheduler_node.py',
-    #         name='scheduler_node',
-    #     )
-    # launch_description.add_action(scheduler_node)
+    station_navigator_node = Node(
+            package=robot_nav_pkg,
+            namespace='',
+            executable='station_navigator.py',
+            name='station_navigator',
+        )
+    launch_description.add_action(station_navigator_node)
 
     aruco_detect_node = Node(
             package=robot_det_pkg,
@@ -40,5 +40,13 @@ def generate_launch_description():
             name='aruco_detect_node',
         )
     launch_description.add_action(aruco_detect_node)
+
+    robot_state_node = Node(
+            package=robot_con_pkg,
+            namespace='',
+            executable='robot_state.py',
+            name='robot_state_node',
+        )
+    launch_description.add_action(robot_state_node)
     
     return launch_description
