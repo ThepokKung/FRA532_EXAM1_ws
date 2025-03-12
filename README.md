@@ -1,7 +1,5 @@
 # FRA532 EXAM1 : AMR in warehouse
 
-"เดี่ยวมาเขียนอีกทีนะ ยังไม่ Final"
-
 ## Table of Contents
 - [FRA532 EXAM1 : AMR in warehouse](#fra532-exam1--amr-in-warehouse)
   - [Table of Contents](#table-of-contents)
