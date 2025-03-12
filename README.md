@@ -14,15 +14,17 @@
     - [4.Add Custom MiR100 Robot with Camera](#4add-custom-mir100-robot-with-camera)
   - [Usage](#usage)
     - [1.Launch Simulation](#1launch-simulation)
-    - [2.Launch Navigation](#2launch-navigation)
+    - [2.Start Navigation Stack](#2start-navigation-stack)
     - [How to use](#how-to-use)
-    - [3.Run Robot Controller](#3run-robot-controller)
+    - [3.Run Robot Controller system](#3run-robot-controller-system)
+    - [Expected Behavior:](#expected-behavior)
     - [4.Launch Battery Simulation and Monitor](#4launch-battery-simulation-and-monitor)
+    - [Expected Behavior:](#expected-behavior-1)
   - [Future plan](#future-plan)
   - [Developer Members](#developer-members)
 
 ## Description
-A brief description of what this project does and who it's for.
+This project focuses on the implementation of an Autonomous Mobile Robot (AMR) in a warehouse environment using ROS2. It includes navigation, inspection, Aruco marker detection, and battery simulation for efficient warehouse automation."
 
 ## System requirements
 * ROS2 Humble ([installation guide](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html))
@@ -102,27 +104,46 @@ source install/setup.bash
 ros2 launch robot_gazebo sim.launch.py
 ```
 
-### 2.Launch Navigation 
+### 2.Start Navigation Stack
+
+Starts the navigation stack, which allows the robot to move autonomously using SLAM and path planning.
+
 ```bash
 source install/setup.bash
 ros2 launch robot_nav navigation.launch.py
 ```
-
 ### How to use
 * When RViz2 opens, select `"2D Pose Estimate"` and click on the map to initialize the robot's position
 * Use `"2D Goal Pose"` to command the robot to navigate to a target location.
 
-### 3.Run Robot Controller
+### 3.Run Robot Controller system
+
+The Robot Controller System is responsible for managing the robot's movement to specified locations, detecting Aruco Markers, and performing Docking at designated stations.
+
 ```bash
 source install/setup.bash
 ros2 launch robot_controller robot_con.launch.py
 ```
 
+### Expected Behavior:
+
+* The robot will operate in different modes, such as multi-station inspection, single-destination navigation, or Aruco marker detection.
+* The robot will automatically perform Docking upon reaching the designated station.
+
 ### 4.Launch Battery Simulation and Monitor
+
+The Battery Simulation and Monitoring System consists of three main nodes that simulate the battery behavior, manage charging stations, and monitor the robot’s battery level.
+
 ```bash
 source install/setup.bash
 ros2 launch robot_controller robot_battery_monitor.launch.py
 ```
+
+###  Expected Behavior:
+
+* The system simulates battery consumption and charging behavior.
+
+* The robot will autonomously navigate to the charging station when the battery is low and perform Docking for recharging.
 
 ## Future plan
 
