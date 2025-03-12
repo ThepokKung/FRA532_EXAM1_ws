@@ -1,0 +1,5 @@
+bool checkstation
+---
+bool success  
+string station
+string message
