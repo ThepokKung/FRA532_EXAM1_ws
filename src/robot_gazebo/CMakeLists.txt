@@ -50,6 +50,7 @@ install(DIRECTORY
   # add directories here
   launch
   worlds
+  models
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()
