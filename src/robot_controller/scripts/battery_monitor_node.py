@@ -73,10 +73,6 @@ class BatteryMonitorNode(Node):
                     self.get_logger().error("Failed to reach charging station.")
             else:
                 self.get_logger().error('No charger station found in the configuration.')
-
-        elif battery_level > 80:
-            self.get_logger().info('Battery level is high. Stopping charging.')
-            self.stop_charging()
         else:
             self.get_logger().info('Battery level is normal. No action needed.')
 
@@ -125,20 +121,6 @@ class BatteryMonitorNode(Node):
             self.get_logger().info("Charging started successfully.")
         else:
             self.get_logger().error("Failed to start charging.")
-
-    def stop_charging(self):
-        """Call the charger_call service to stop charging."""
-        request = SetBool.Request()
-        request.data = False
-        future = self.charger_call_client.call_async(request)
-        while not future.done():
-            time.sleep(0.1)
-
-        if future.result() is not None and future.result().success:
-            self.get_logger().info("Charging stopped successfully.")
-        else:
-            self.get_logger().error("Failed to stop charging.")
-
 
 def main(args=None):
     rclpy.init(args=args)

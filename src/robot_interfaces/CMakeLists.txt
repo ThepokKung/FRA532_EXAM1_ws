@@ -32,6 +32,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Station2GO.srv"
   "srv/MultiTarget2GO.srv"
   "srv/BatteryUpdate.srv"
+  "srv/RobotStateCheck.srv"
+  "srv/RobotStateUpdate.srv"
+  "srv/RobotStationCheck.srv"
+  "srv/RobotStationUpdate.srv"
   DEPENDENCIES geometry_msgs std_msgs 
 )
 

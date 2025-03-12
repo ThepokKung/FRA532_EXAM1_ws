@@ -28,7 +28,7 @@ ament_python_install_package(${PROJECT_NAME})
 # Install Python executables
 install(PROGRAMS
   # scripts/dummy_script.py
-  scripts/scheduler_node.py
+  scripts/robot_state.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

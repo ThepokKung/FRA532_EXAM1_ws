@@ -17,13 +17,13 @@ def generate_launch_description():
         )
     launch_description.add_action(nav2go_node)
 
-    inspection_node = Node(
-            package=robot_nav_pkg,
-            namespace='',
-            executable='inspection_node.py',
-            name='inspection_node',
-        )
-    launch_description.add_action(inspection_node)
+    # inspection_node = Node(
+    #         package=robot_nav_pkg,
+    #         namespace='',
+    #         executable='inspection_node.py',
+    #         name='inspection_node',
+    #     )
+    # launch_description.add_action(inspection_node)
 
     # scheduler_node = Node(
     #         package=robot_con_pkg,

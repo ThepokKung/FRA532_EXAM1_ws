@@ -10,7 +10,7 @@ from ament_index_python.packages import get_package_share_directory
 
 # Action and Service imports
 from nav2_msgs.action import NavigateToPose
-from robot_interfaces.srv import Station2GO, SetID
+from robot_interfaces.srv import Station2GO, SetID, RobotStationCheck
 from std_srvs.srv import SetBool
 from rclpy.action import ActionClient
 
@@ -38,7 +38,8 @@ class StationNavigationAndDocking(Node):
         self.set_aruco_client = self.create_client(SetID, '/set_aruco_station_id')
         self.docking_client = self.create_client(SetBool, '/docking_with_aruco')
         self.docking_status_client = self.create_client(SetBool, '/docking_aruco_status')
-
+        # self.check_staion_client = self.create_client(RobotStationCheck, '/robot_station_check')
+        
         # Wait for services to be available
         self.wait_for_services()
 
@@ -77,7 +78,7 @@ class StationNavigationAndDocking(Node):
             response.success = False
             response.message = f"Station '{target_station}' not found."
             return response
-
+        
         # Run navigation and docking in a separate thread
         threading.Thread(target=self.process_station, args=(station, response), daemon=True).start()
         return response
