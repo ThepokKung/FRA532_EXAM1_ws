@@ -166,7 +166,7 @@ class MultiStationNavigationAndDocking(Node):
             self.get_logger().info(f"Successfully navigated and docked at station: {target}")
 
         # Update the robot's state
-        if not self.update_robot_state('None'):
+        if not self.update_robot_state(str(None)):
             self.get_logger().error(f"Failed to update robot state to: None")
         self.get_logger().info("All stations processed.")
     
