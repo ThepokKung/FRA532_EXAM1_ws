@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="cart_description">
+
+    <gazebo reference="base_link">
+        <material>Gazebo/White</material>
+    </gazebo>
+
+    <gazebo reference="rev1_link">
+        <material>Gazebo/White</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="rev2_link">
+        <material>Gazebo/White</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="rev3_link">
+        <material>Gazebo/White</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="rev4_link">
+        <material>Gazebo/White</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="wheel_link1">
+        <material>Gazebo/Black</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="wheel_link2">
+        <material>Gazebo/Black</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="wheel_link3">
+        <material>Gazebo/Black</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+
+    <gazebo reference="wheel_link4">
+        <material>Gazebo/Black</material>
+        <mu1>1000.0</mu1>
+        <mu2>1000.0</mu2>
+    </gazebo>
+  <link name="base_footprint"/>
+  <joint
+    name="base_footprint_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 1.371"
+      rpy="0 0 0" />
+    <parent
+      link="base_footprint" />
+    <child
+      link="base_link" />
+  </joint>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-4.267E-09 1.3916E-09 -0.60594"
+        rpy="0 0 0" />
+      <mass
+        value="30.163" />
+      <inertia
+        ixx="1.0132"
+        ixy="-2.3419E-15"
+        ixz="7.6733E-10"
+        iyy="1.6281"
+        iyz="-3.803E-10"
+        izz="2.1018" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="rev1_link">
+    <inertial>
+      <origin
+        xyz="-0.0088734 -6.6165E-05 -0.024908"
+        rpy="0 0 0" />
+      <mass
+        value="1.39604" />
+      <inertia
+        ixx="0.00039872"
+        ixy="-4.2724E-07"
+        ixz="-6.7183E-05"
+        iyy="0.00033801"
+        iyz="-8.9725E-07"
+        izz="0.00036573" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev1_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev1_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rev1_joint"
+    type="continuous">
+    <origin
+      xyz="0.455000444393592 0.359999281102582 -1.2745"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rev1_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_link1">
+    <inertial>
+      <origin
+        xyz="-4.1435E-07 -6.5601E-08 -0.021"
+        rpy="0 0 0" />
+      <mass
+        value="3.17935" />
+      <inertia
+        ixx="8.2728E-05"
+        ixy="-9.2883E-10"
+        ixz="-2.5882E-10"
+        iyy="8.2727E-05"
+        iyz="-4.0977E-11"
+        izz="0.00012509" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_joint1"
+    type="continuous">
+    <origin
+      xyz="-0.0249999354501127 0.0210007188974224 -0.0590000805768477"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="rev1_link" />
+    <child
+      link="wheel_link1" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="rev2_link">
+    <inertial>
+      <origin
+        xyz="-0.00887339487456562 -6.61645689145063E-05 -0.0249081765286552"
+        rpy="0 0 0" />
+      <mass
+        value="1.396038890351565" />
+      <inertia
+        ixx="0.00039872334655464"
+        ixy="-4.27244537660786E-07"
+        ixz="-6.71827961544606E-05"
+        iyy="0.000338006463584829"
+        iyz="-8.97251873623049E-07"
+        izz="0.000365728383108833" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev2_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev2_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rev2_joint"
+    type="continuous">
+    <origin
+      xyz="-0.454999555606407 0.359999281102582 -1.2745"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rev2_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_link2">
+    <inertial>
+      <origin
+        xyz="3.5838691304739E-07 2.97230274073912E-07 -0.0209999325508982"
+        rpy="0 0 0" />
+      <mass
+        value="3.179345602653885" />
+      <inertia
+        ixx="8.27284430552168E-05"
+        ixy="4.23195339970663E-11"
+        ixz="3.01176420996864E-10"
+        iyy="8.27260659752148E-05"
+        iyz="2.65005962168038E-10"
+        izz="0.000125090491252271" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_joint2"
+    type="continuous">
+    <origin
+      xyz="-0.0250008448393041 0.0210007188974225 -0.0589996757172124"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="rev2_link" />
+    <child
+      link="wheel_link2" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="rev3_link">
+    <inertial>
+      <origin
+        xyz="-0.00887339487456573 -6.61645689148394E-05 -0.0249081765286554"
+        rpy="0 0 0" />
+      <mass
+        value="1.396038890351569" />
+      <inertia
+        ixx="0.000398723346554642"
+        ixy="-4.2724453765989E-07"
+        ixz="-6.71827961544615E-05"
+        iyy="0.000338006463584828"
+        iyz="-8.9725187362568E-07"
+        izz="0.000365728383108832" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev3_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev3_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rev3_joint"
+    type="continuous">
+    <origin
+      xyz="0.455000444393593 -0.360000718897418 -1.2745"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rev3_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_link3">
+    <inertial>
+      <origin
+        xyz="6.9292E-06 1.941E-06 0.021"
+        rpy="0 0 0" />
+      <mass
+        value="3.17935" />
+      <inertia
+        ixx="8.2728E-05"
+        ixy="-9.2883E-10"
+        ixz="-2.5882E-10"
+        iyy="8.2727E-05"
+        iyz="-4.0977E-11"
+        izz="0.00012509" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_joint3"
+    type="continuous">
+    <origin
+      xyz="-0.0250072789629805 -0.0209992811025772 -0.0589980739266469"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="rev3_link" />
+    <child
+      link="wheel_link3" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="rev4_link">
+    <inertial>
+      <origin
+        xyz="-0.00887339487456498 -6.61645689150614E-05 -0.0249081765286557"
+        rpy="0 0 0" />
+      <mass
+        value="1.396038890351579" />
+      <inertia
+        ixx="0.000398723346554644"
+        ixy="-4.27244537657762E-07"
+        ixz="-6.71827961544585E-05"
+        iyy="0.000338006463584843"
+        iyz="-8.9725187362297E-07"
+        izz="0.000365728383108845" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev4_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/rev4_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rev4_joint"
+    type="continuous">
+    <origin
+      xyz="-0.454999555606407 -0.360000718897418 -1.2745"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rev4_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="wheel_link4">
+    <inertial>
+      <origin
+        xyz="6.92916352238934E-06 1.94104966713682E-06 0.0210000333997271"
+        rpy="0 0 0" />
+      <mass
+        value="3.179345990374053" />
+      <inertia
+        ixx="8.27278240796197E-05"
+        ixy="-9.28827080648683E-10"
+        ixz="-2.58822853707111E-10"
+        iyy="8.27267309279063E-05"
+        iyz="-4.09772987772815E-11"
+        izz="0.000125090332046621" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file:///$(find cart_description)/meshes/wheel_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_joint4"
+    type="continuous">
+    <origin
+      xyz="-0.0250072789629803 -0.0209992811025765 -0.0589980739266469"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="rev4_link" />
+    <child
+      link="wheel_link4" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+</robot>
