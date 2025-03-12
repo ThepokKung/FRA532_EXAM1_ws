@@ -153,6 +153,6 @@ ros2 launch robot_controller robot_battery_monitor.launch.py
 * Fix issue with camera calibration.
   
 ## Developer Members
-* 6534050000 Kraiwich Vichakhot
-* Plan
-* Gun
+* 65340500004 Kraiwich Vichakhot
+* 65340500009 Chayanin Napia  
+* 65340500023 Natthaphat Sookpanya
