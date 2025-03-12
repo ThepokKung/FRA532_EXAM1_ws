@@ -23,12 +23,11 @@
     - [5. Robot Interaction \& Service Calls](#5-robot-interaction--service-calls)
       - [5.1 Sending Station Navigation Goals](#51-sending-station-navigation-goals)
       - [5.2 Sending Multistation Navigation Goals](#52-sending-multistation-navigation-goals)
-      - [5.3 Check state-station \& update state-staion](#53-check-state-station--update-state-staion)
+      - [5.3  "Check \& Update Robot State and Station"](#53--check--update-robot-state-and-station)
         - [5.3.1 robot update state](#531-robot-update-state)
         - [5.3.2 robot state check](#532-robot-state-check)
         - [5.3.3 robot update station](#533-robot-update-station)
         - [5.3.4 robot check state](#534-robot-check-state)
-      - [5.4 Battery](#54-battery)
   - [Demo](#demo)
   - [Future plan](#future-plan)
   - [Developer Members](#developer-members)
@@ -167,7 +166,8 @@ ros2 launch robot_controller robot_battery_monitor.launch.py
 This section provides an overview of service calls and topic commands that can be used to interact with the robot.
 
 #### 5.1 Sending Station Navigation Goals
-For need go to station with docking mode will call
+To navigate the robot to a specific station in docking mode, use the following command:
+
 ```bash
 ros2 service call /station_2go robot_interfaces/srv/Station2GO "station: 'example'"
 ```
@@ -176,7 +176,7 @@ ros2 service call /station_2go robot_interfaces/srv/Station2GO "station: 'exampl
 > Can use only staion_name on database
 
 #### 5.2 Sending Multistation Navigation Goals
-For need to go station with donking mode all station ตามลำดับที่กรอบไป
+To send the robot to multiple stations sequentially in docking mode, use the following command:
 
 ```bash
 ros2 service call /multi_station_2go robot_interfaces/srv/MultiTarget2GO "target_names: [example,example]" 
@@ -185,7 +185,7 @@ ros2 service call /multi_station_2go robot_interfaces/srv/MultiTarget2GO "target
 > [!WARNING]
 > Can use only staion_name on database
 
-#### 5.3 Check state-station & update state-staion
+#### 5.3  "Check & Update Robot State and Station"
 For check or update state-station on for robot_state
 
 ##### 5.3.1 robot update state
@@ -208,12 +208,15 @@ ros2 service call /update_robot_station robot_interfaces/srv/RobotStationUpdate 
 ros2 service call /check_robot_station robot_interfaces/srv/RobotStationCheck "checkstation: true"
 ```
 
-#### 5.4 Battery 
-
-
 ## Demo
 
-[Usage launch workspace](https://youtu.be/PenU0T-6HBk)
+[Usage launch workspace](https://youtu.be/PenU0T-6HBk) - Demonstrates how to launch the simulation workspace.
+
+[Demo Auto charger Station]() - Shows the robot automatically navigating to a charging station.
+
+[Demo Station Navigation]() - Demonstrates the robot moving to a single station.
+
+[Demo MultiStationNavigation](https://youtu.be/MkLPEeSIWDY) - Shows the robot navigating through multiple stations.
 
 ## Future plan
 
