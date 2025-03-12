@@ -17,7 +17,6 @@ class BatterySimulatorNode(Node):
         self.get_logger().info('Battery Simulator Node has been started.')
 
     def battery_level_update_callback(self, request, response):
-        
         self.battery_level = request.battery_level
         response.success = True
         response.message = 'Battery level updated.'

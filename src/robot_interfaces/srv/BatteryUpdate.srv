@@ -1,4 +1,4 @@
-int16 battery_level
+int32 battery_level
 ---
 bool success
 string message
