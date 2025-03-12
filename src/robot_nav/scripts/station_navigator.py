@@ -103,10 +103,11 @@ class StationNavigationAndDocking(Node):
             response.message = f"Station '{target_station}' not found."
             return response
         
-        # Run navigation and docking in a separate thread
-        threading.Thread(target=self.process_station, args=(station,), daemon=True).start()
         response.success = True
         response.message = "Task started."
+        
+        # Run navigation and docking in a separate thread
+        threading.Thread(target=self.process_station, args=(station,), daemon=True).start()
         return response
 
     def process_station(self, station):

@@ -25,13 +25,13 @@ def generate_launch_description():
         )
     launch_description.add_action(inspection_node)
 
-    station_navigator_node = Node(
-            package=robot_nav_pkg,
-            namespace='',
-            executable='station_navigator.py',
-            name='station_navigator',
-        )
-    launch_description.add_action(station_navigator_node)
+    # station_navigator_node = Node(
+    #         package=robot_nav_pkg,
+    #         namespace='',
+    #         executable='station_navigator.py',
+    #         name='station_navigator',
+    #     )
+    # launch_description.add_action(station_navigator_node)
 
     aruco_detect_node = Node(
             package=robot_det_pkg,
