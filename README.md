@@ -1,41 +1,40 @@
-# FRA532 EXAM1 : AMR in warehourse
+# FRA532 EXAM1 : AMR in warehouse
 
 "เดี่ยวมาเขียนอีกทีนะ ยังไม่ Final"
 
 ## Table of Contents
-- [FRA532 EXAM1 : AMR in warehourse](#fra532-exam1--amr-in-warehourse)
+- [FRA532 EXAM1 : AMR in warehouse](#fra532-exam1--amr-in-warehouse)
   - [Table of Contents](#table-of-contents)
   - [Description](#description)
-  - [Systeno req](#systeno-req)
+  - [System requirements](#system-requirements)
   - [Installation](#installation)
-    - [1.Clone ws](#1clone-ws)
-    - [2.Clone MIR robot](#2clone-mir-robot)
-    - [3.Clone AWS Warehourse](#3clone-aws-warehourse)
-    - [4.Add cam to MIR](#4add-cam-to-mir)
+    - [1.Clone ROS 2 Workspace](#1clone-ros-2-workspace)
+    - [2.Clone MiR Robot Package](#2clone-mir-robot-package)
+    - [3.Clone AWS Warehouse World](#3clone-aws-warehouse-world)
+    - [4.Add Custom MiR100 Robot with Camera](#4add-custom-mir100-robot-with-camera)
   - [Usage](#usage)
-    - [Run Simulation](#run-simulation)
-    - [Run naviation](#run-naviation)
-    - [Run robot\_controll systemp](#run-robot_controll-systemp)
-    - [Run inspection\_node](#run-inspection_node)
-  - [Contributing](#contributing)
-  - [License](#license)
+    - [1.Launch Simulation](#1launch-simulation)
+    - [2.Launch Navigation](#2launch-navigation)
+    - [How to use](#how-to-use)
+    - [3.Run Robot Controller](#3run-robot-controller)
+    - [4.Launch Battery Simulation and Monitor](#4launch-battery-simulation-and-monitor)
+  - [Future plan](#future-plan)
+  - [Developer Members](#developer-members)
 
 ## Description
 A brief description of what this project does and who it's for.
 
-## Systeno req
-```bash
-sudo apt install ros-humble-nav2-bringup
-```
+## System requirements
+* ROS2 Humble ([installation guide](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html))
+* Gazebo ([installation guide](https://gazebosim.org/docs/latest/ros_installation/))
 
 ## Installation
-### 1.Clone ws
-Clone ws
+### 1.Clone ROS 2 Workspace
+Clone the ROS 2 workspace:
 ```bash
 git clone https://github.com/ThepokKung/FRA532_EXAM1_ws -b main
-
 ```
-### 2.Clone MIR robot
+### 2.Clone MiR Robot Package
 ```bash
 cd ~/FRA532_EXAM1_ws/
 
@@ -56,12 +55,13 @@ cd ~/FRA532_EXAM1_ws/
 colcon build
 ```
 
-Test MIR is work
+Test MiR robot:
+
 ```bash
 ros2 launch mir_gazebo mir_gazebo_launch.py world:=maze rviz_config_file:=$(ros2 pkg prefix mir_navigation)/share/mir_navigation/rviz/mir_nav.rviz
 ```
 
-### 3.Clone AWS Warehourse
+### 3.Clone AWS Warehouse World
 
 ```bash
 cd ~/FRA532_EXAM1_ws/
@@ -77,13 +77,13 @@ cd ~/FRA532_EXAM1_ws/
 colcon build
 ```
 
-Test AWS Warehourse
+Test AWS Warehouse:
 
 ```bash
 ros2 launch aws_robomaker_small_warehouse_world small_warehouse.launch.py
 ```
 
-### 4.Add cam to MIR
+### 4.Add Custom MiR100 Robot with Camera
 
 ```bash
 cd ~/FRA532_EXAM1_ws/
@@ -93,31 +93,45 @@ cp MiR100_cam/mir_100_v1.urdf.xacro src/mir_robot/mir_description/urdf/include/m
 ```
 
 ## Usage
-### Run Simulation
+### 1.Launch Simulation
+
+Launches the warehouse simulation environment and MIR robot in Gazebo.
+
 ```bash
+source install/setup.bash
 ros2 launch robot_gazebo sim.launch.py
 ```
 
-### Run naviation
+### 2.Launch Navigation 
 ```bash
+source install/setup.bash
 ros2 launch robot_nav navigation.launch.py
 ```
 
-ใน RVIZ using 2D pose Estimate ด้วย
+### How to use
+* When RViz2 opens, select `"2D Pose Estimate"` and click on the map to initialize the robot's position
+* Use `"2D Goal Pose"` to command the robot to navigate to a target location.
 
-### Run robot_controll systemp
+### 3.Run Robot Controller
 ```bash
+source install/setup.bash
 ros2 launch robot_controller robot_con.launch.py
 ```
 
-### Run inspection_node
-**BUG อยู่ รี Node ด้วยหลังรีันแต่ละรอบ กำลังแก้**
+### 4.Launch Battery Simulation and Monitor
 ```bash
-ros2 run robot_nav inspection.launch.py
+source install/setup.bash
+ros2 launch robot_controller robot_battery_monitor.launch.py
 ```
 
-## Contributing
-Guidelines for contributing to the project.
+## Future plan
 
-## License
-Information about the project's license.
+* Fix existing bugs
+* Improve navigation accuracy.
+* Add object detection functionality.
+* Fix issue with camera calibration.
+  
+## Developer Members
+* 6534050000 Kraiwich Vichakhot
+* Plan
+* Gun
